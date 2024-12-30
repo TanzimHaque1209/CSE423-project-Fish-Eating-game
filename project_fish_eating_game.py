@@ -7,19 +7,19 @@ from OpenGL.GLUT import GLUT_BITMAP_TIMES_ROMAN_24
 GLUT_BITMAP_HELVETICA_18 = ctypes.c_void_p(5) 
 import math
 
-# Window dimensions
+
 WINDOW_WIDTH = 800
 WINDOW_HEIGHT = 600
 
 BUTTON_WIDTH = 50
 BUTTON_HEIGHT = 30
 
-# Button positions
+
 BUTTON_LEFT = (50, WINDOW_HEIGHT - 50)
 BUTTON_PAUSE = (WINDOW_WIDTH // 2, WINDOW_HEIGHT - 50)
 BUTTON_EXIT = (WINDOW_WIDTH - 50, WINDOW_HEIGHT - 50)
 
-# Fish and point properties
+
 fish1 = {'x': 200, 'y': 300, 'size': 24, 'direction': (1, 0), 'speed': 2.0, 'score': 5}
 fish2 = {'x': 600, 'y': 300, 'size': 24, 'direction': (-1, 0), 'speed': 2.0, 'score': 5}
 points = []
@@ -32,7 +32,6 @@ expanding_radius = 10
 expanding_shrink_rate = 0.2
 expanding_direction = 1
 
-# Game states
 game_over = False
 winner = None
 show_end_message = False
@@ -60,8 +59,8 @@ def draw_buttons():
     BUTTON_PAUSE = (WINDOW_WIDTH // 2, WINDOW_HEIGHT - 50)
     BUTTON_EXIT = (WINDOW_WIDTH // 2 + 120, WINDOW_HEIGHT - 50)
 
-    # Restart button
-    glColor3f(0.0, 0.5, 1.0)  # Cyan color
+    
+    glColor3f(0.0, 0.5, 1.0)  
     glBegin(GL_POINTS)
     for x in range(BUTTON_LEFT[0] - BUTTON_WIDTH // 2, BUTTON_LEFT[0] + BUTTON_WIDTH // 2 + 1):
         for y in range(BUTTON_LEFT[1] - BUTTON_HEIGHT // 2, BUTTON_LEFT[1] + BUTTON_HEIGHT // 2 + 1):
@@ -72,8 +71,8 @@ def draw_buttons():
     for c in "<-":
         glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, ord(c))
 
-    # Pause button
-    glColor3f(0.9, 1.0, 0.0)  # Yellow color
+   
+    glColor3f(0.9, 1.0, 0.0)  
     glBegin(GL_POINTS)
     for x in range(BUTTON_PAUSE[0] - BUTTON_WIDTH // 2, BUTTON_PAUSE[0] + BUTTON_WIDTH // 2 + 1):
         for y in range(BUTTON_PAUSE[1] - BUTTON_HEIGHT // 2, BUTTON_PAUSE[1] + BUTTON_HEIGHT // 2 + 1):
@@ -85,8 +84,8 @@ def draw_buttons():
     for c in icon:
         glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, ord(c))
 
-    # Exit button
-    glColor3f(1.0, 0.0, 0.0)  # Red color
+   
+    glColor3f(1.0, 0.0, 0.0)  
     glBegin(GL_POINTS)
     for x in range(BUTTON_EXIT[0] - BUTTON_WIDTH // 2, BUTTON_EXIT[0] + BUTTON_WIDTH // 2 + 1):
         for y in range(BUTTON_EXIT[1] - BUTTON_HEIGHT // 2, BUTTON_EXIT[1] + BUTTON_HEIGHT // 2 + 1):
@@ -102,7 +101,7 @@ def is_inside_button(x, y, button_pos, size=20):
     return (button_pos[0] - size <= x <= button_pos[0] + size and
             button_pos[1] - size <= y <= button_pos[1] + size)
 
-# Midpoint circle algorithm
+
 def midpoint_circle(xc, yc, radius, color):
     x = 0
     y = radius
@@ -156,71 +155,69 @@ def midpoint_line(x1, y1, x2, y2):
     glEnd()
 
 
-# Draw green triangles at the bottom to simulate an aquarium floor
- # For sine wave patterns
 
 def draw_aquarium_floor():
-    glColor3f(0.3, 0.6, 0.3)  # Darker green color for leaves
-    leaf_width = 10  # Maximum width of each leaf
-    leaf_height = 20  # Height of each leaf (shorter length)
-    stem_height = 100  # Height of the plant's stem (shortened)
+    glColor3f(0.3, 0.6, 0.3)  
+    leaf_width = 10  
+    leaf_height = 20  
+    stem_height = 100 
 
-    for x in range(50, WINDOW_WIDTH, 100):  # Spacing between plants
-        base_y = 0  # Start from the bottom of the screen
+    for x in range(50, WINDOW_WIDTH, 100):  
+        base_y = 0  
 
-        # Draw the stem using midpoint_line
+       
         midpoint_line(x, base_y, x, base_y + stem_height)
 
-        # Add leaves to the stem
-        for i in range(20, stem_height, 40):  # Vertical spacing between leaves
-            # Left leaf (curve using midpoint_circle and line)
+      
+        for i in range(20, stem_height, 40):  
+            
             for j in range(leaf_height):
                 offset = int(math.sin(j * math.pi / leaf_height) * leaf_width)
                 midpoint_line(x, base_y + i + j, x - offset, base_y + i + j)
 
-            # Right leaf (curve using midpoint_circle and line)
+           
             for j in range(leaf_height):
                 offset = int(math.sin(j * math.pi / leaf_height) * leaf_width)
                 midpoint_line(x, base_y + i + j, x + offset, base_y + i + j)
 
-        # Add leaf tips using midpoint_circle for rounded edges
-        for i in range(20, stem_height, 40):  # Vertical spacing between leaves
+        
+        for i in range(20, stem_height, 40):  
             midpoint_circle(x - leaf_width, base_y + i + leaf_height, leaf_width // 2, (0.3, 0.6, 0.3))
             midpoint_circle(x + leaf_width, base_y + i + leaf_height, leaf_width // 2, (0.3, 0.6, 0.3))
 
-    # Add additional smaller leaves near the bottom
-    for x in range(30, WINDOW_WIDTH, 50):  # Denser spacing at the bottom
+  
+    for x in range(30, WINDOW_WIDTH, 50):  
         base_y = 0
 
-        # Draw shorter stems with leaves
-        for i in range(10, 50, 20):  # Shorter vertical spacing
-            # Left leaf
+       
+        for i in range(10, 50, 20):  
+            
             for j in range(leaf_height // 2):
                 offset = int(math.sin(j * math.pi / (leaf_height // 2)) * (leaf_width // 2))
                 midpoint_line(x, base_y + i + j, x - offset, base_y + i + j)
 
-            # Right leaf
+            
             for j in range(leaf_height // 2):
                 offset = int(math.sin(j * math.pi / (leaf_height // 2)) * (leaf_width // 2))
                 midpoint_line(x, base_y + i + j, x + offset, base_y + i + j)
 
-            # Leaf tips
+           
             midpoint_circle(x - (leaf_width // 2), base_y + i + (leaf_height // 2), leaf_width // 4, (0.3, 0.6, 0.3))
             midpoint_circle(x + (leaf_width // 2), base_y + i + (leaf_height // 2), leaf_width // 4, (0.3, 0.6, 0.3))
 
 def draw_random_wavy_points():
-    glColor3f(0.0, 0.9, 1)  # Light blue color for the points
-    line_count = 5  # Number of wavy lines
+    glColor3f(0.0, 0.9, 1) 
+    line_count = 5  
 
     for _ in range(line_count):
-        # Predefined starting position and wave properties for consistency
+        
         start_x = random.randint(0, WINDOW_WIDTH - 170)
         start_y = random.randint(0, WINDOW_HEIGHT - 25)
-        wave_length = random.randint(300, 300)  # Increased wavelength for slower waves
-        amplitude = random.randint(10, 15)     # Amplitude of the wave
-        frequency = random.uniform(0.001, 0.01)  # Lower frequency for slower movement
+        wave_length = random.randint(300, 300)  
+        amplitude = random.randint(10, 15)    
+        frequency = random.uniform(0.001, 0.01)  
 
-        # Draw wave-shaped line using midpoint_line
+      
         previous_x, previous_y = start_x, start_y
         for i in range(0, wave_length):
             x = start_x + i
@@ -229,57 +226,48 @@ def draw_random_wavy_points():
             previous_x, previous_y = x, y
 def draw_bubbles():
     for bubble in bubbles:
-        midpoint_circle(bubble['x'], bubble['y'], bubble['radius'], (1, 1, 1))  # White bubbles
+        midpoint_circle(bubble['x'], bubble['y'], bubble['radius'], (1, 1, 1)) 
 def draw_fish(fish, body_color, tail_color, fin_color):
-    """
-    Draw a fish with body, tail, fins, and an eye.
-    Args:
-        fish (dict): A dictionary containing fish attributes (x, y, size, direction).
-        body_color (tuple): RGB color for the body.
-        tail_color (tuple): RGB color for the tail.
-        fin_color (tuple): RGB color for the fins.
-    """
-    # Adjust the body and tail positions based on direction
+  
     body_offset_x = fish['direction'][0] * fish['size'] // 2
     body_offset_y = fish['direction'][1] * fish['size'] // 2
 
-    # Draw the body of the fish (main circle)
+    
     midpoint_circle(fish['x'] + body_offset_x, fish['y'] + body_offset_y, fish['size'], body_color)
 
-    # Draw the tail of the fish
+    
     tail_offset_x = -fish['direction'][0] * fish['size'] // 2
     tail_offset_y = -fish['direction'][1] * fish['size'] // 2
     midpoint_circle(fish['x'] + tail_offset_x, fish['y'] + tail_offset_y, fish['size'] // 2, tail_color)
 
-    # Calculate fin positions relative to direction
+    
     fin_base_x = fish['x'] + body_offset_x
     fin_base_y = fish['y'] + body_offset_y
 
-    # Adjust fin directions based on fish movement
-    if fish['direction'][0] != 0:  # Moving left or right
+  
+    if fish['direction'][0] != 0:  
         fin_upper_tip_x = fin_base_x - fish['direction'][0] * fish['size']
         fin_upper_tip_y = fin_base_y + fish['size']
         fin_lower_tip_x = fin_base_x - fish['direction'][0] * fish['size']
         fin_lower_tip_y = fin_base_y - fish['size']
-    else:  # Moving up or down
+    else: 
         fin_upper_tip_x = fin_base_x
         fin_upper_tip_y = fin_base_y + fish['size']
         fin_lower_tip_x = fin_base_x
         fin_lower_tip_y = fin_base_y - fish['size']
 
-    # Draw the upper fin
     midpoint_line(
         fin_base_x, fin_base_y + fish['size'] // 2,
         fin_upper_tip_x, fin_upper_tip_y
     )
 
-    # Draw the lower fin
+ 
     midpoint_line(
         fin_base_x, fin_base_y - fish['size'] // 2,
         fin_lower_tip_x, fin_lower_tip_y
     )
 
-    # Draw the eye based on direction
+   
     eye_offset_x = fish['size'] // 3 if fish['direction'][0] >= 0 else -fish['size'] // 3
     eye_offset_y = fish['size'] // 4 if fish['direction'][1] <= 0 else fish['size'] // 2
     midpoint_circle(
@@ -292,26 +280,26 @@ def draw_points():
     global expanding_radius, expanding_direction
     for point in points:
         if point['type'] == 'green':
-            # Draw concentric circles for green points
-            midpoint_circle(point['x'], point['y'], expanding_radius, (0.0, 0.5, 0.0))  # Dark green outer
-            midpoint_circle(point['x'], point['y'], expanding_radius - 2, (0.0, 0.5, 0.0))  # Second dark green outer
-            midpoint_circle(point['x'], point['y'], expanding_radius - 4, (0.6, 1.0, 0.6))  # Light green middle
-            midpoint_circle(point['x'], point['y'], expanding_radius - 6, (0.6, 1.0, 0.6))  # Second light green middle
-            midpoint_circle(point['x'], point['y'], expanding_radius - 8, (0.0, 0.5, 0.0))  # Dark green inner
+           
+            midpoint_circle(point['x'], point['y'], expanding_radius, (0.0, 0.5, 0.0)) 
+            midpoint_circle(point['x'], point['y'], expanding_radius - 2, (0.0, 0.5, 0.0))  
+            midpoint_circle(point['x'], point['y'], expanding_radius - 4, (0.6, 1.0, 0.6))  
+            midpoint_circle(point['x'], point['y'], expanding_radius - 6, (0.6, 1.0, 0.6))  
+            midpoint_circle(point['x'], point['y'], expanding_radius - 8, (0.0, 0.5, 0.0))  
 
         elif point['type'] == 'red':
-            # Draw concentric circles for red points
-            midpoint_circle(point['x'], point['y'], expanding_radius, (1.0, 0.0, 0.0))  # Red outer
-            midpoint_circle(point['x'], point['y'], expanding_radius - 2, (1.0, 0.0, 0.0))  # Second red outer
-            midpoint_circle(point['x'], point['y'], expanding_radius - 4, (1.0, 0.5, 0.0))  # Orange middle
-            midpoint_circle(point['x'], point['y'], expanding_radius - 6, (1.0, 0.5, 0.0))  # Second orange middle
-            midpoint_circle(point['x'], point['y'], expanding_radius - 8, (1.0, 0.0, 0.0))  # Red inner
+           
+            midpoint_circle(point['x'], point['y'], expanding_radius, (1.0, 0.0, 0.0)) 
+            midpoint_circle(point['x'], point['y'], expanding_radius - 2, (1.0, 0.0, 0.0))  
+            midpoint_circle(point['x'], point['y'], expanding_radius - 4, (1.0, 0.5, 0.0))  
+            midpoint_circle(point['x'], point['y'], expanding_radius - 6, (1.0, 0.5, 0.0))  
+            midpoint_circle(point['x'], point['y'], expanding_radius - 8, (1.0, 0.0, 0.0))  
 
     expanding_radius += expanding_direction * expanding_shrink_rate
     if expanding_radius >= 15 or expanding_radius <= 10:
         expanding_direction *= -1
 
-# Draw scores
+
 def draw_scores():
     glColor3f(0, 0, 1)
     glRasterPos2i(50, WINDOW_HEIGHT - 30)
@@ -325,7 +313,7 @@ def draw_scores():
     for char in score2:
         glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, ord(char))
 
-# Update game state
+
 def update_points():
     global points
     new_points = []
@@ -363,12 +351,12 @@ def check_collision(fish):
             if fish['score'] >= 10:
                 game_over = True
                 winner = 'Player 1' if fish is fish1 else 'Player 2'
-                glutTimerFunc(1000, show_message, 0)  # Pause for 1 second before showing the message
+                glutTimerFunc(1000, show_message, 0)  
                 return
             elif opponent['score'] < 0:
                 game_over = True
                 winner = 'Player 1' if fish is fish1 else 'Player 2'
-                glutTimerFunc(1000, show_message, 0)  # Pause for 1 second before showing the message
+                glutTimerFunc(1000, show_message, 0)  
                 return
             points.remove(point)
             break
@@ -377,23 +365,23 @@ def show_message(value):
     global show_end_message
     show_end_message = True
 
-# Display callback
+
 def display():
     global game_over, winner, show_end_message, paused
     glClear(GL_COLOR_BUFFER_BIT)
-    glClearColor(0.7, 0.9, 1.0, 1)  # Lightened sky blue background
+    glClearColor(0.7, 0.9, 1.0, 1)  
     
 
     if game_over and show_end_message:
-        # Display "The Game End" in red
-        glColor3f(1, 0, 0)  # Red
+       
+        glColor3f(1, 0, 0)  
         glRasterPos2i(WINDOW_WIDTH // 2 - 150, WINDOW_HEIGHT // 2 + 40)
         message1 = "The Game End!!!"
         for char in message1:
             glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24, ord(char))
         
-        # Display winner message in blue
-        glColor3f(0, 0, 1)  # Blue
+       
+        glColor3f(0, 0, 1)  
         glRasterPos2i(WINDOW_WIDTH // 2 - 150, WINDOW_HEIGHT // 2)
         if winner == 'Player 1':
             message2 = "Congratulations to Player 1"
@@ -407,25 +395,25 @@ def display():
         for char in message2:
             glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24, ord(char))
         
-        # Display consolation message in blue
+       
         glRasterPos2i(WINDOW_WIDTH // 2 - 150, WINDOW_HEIGHT // 2 - 40)
         for char in message3:
             glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24, ord(char))
     else:
-        # Draw the main game scene
+        
         draw_bubbles()
         draw_aquarium_floor()
-        draw_fish(fish1, (0, 0, 1), (0.0, 0.0, 0.502),(0.0, 0.0, 0.502))  # Blue fish
-        draw_fish(fish2, (0.8, 0, 0.8), (0.502, 0.0, 0.0),(0.502, 0.0, 0.0))  # Purple fish
+        draw_fish(fish1, (0, 0, 1), (0.0, 0.0, 0.502),(0.0, 0.0, 0.502)) 
+        draw_fish(fish2, (0.8, 0, 0.8), (0.502, 0.0, 0.0),(0.502, 0.0, 0.0))  
         draw_points()
         draw_scores()
         draw_buttons()
         draw_random_wavy_points()
     
-    # Swap the buffers to display the updated frame
+    
     glutSwapBuffers()
 
-# Timer callback
+
 def timer(value):
     global paused
     if not game_over and not paused:
@@ -440,7 +428,7 @@ def timer(value):
 def mouse(button, state, x, y):
     global paused
     if button == GLUT_LEFT_BUTTON and state == GLUT_DOWN:
-        y_adjusted = WINDOW_HEIGHT - y  # Adjust for OpenGL's coordinate system
+        y_adjusted = WINDOW_HEIGHT - y  
         if is_inside_button(x, y_adjusted, BUTTON_LEFT):
             reset_game()
         elif is_inside_button(x, y_adjusted, BUTTON_PAUSE):
@@ -448,7 +436,7 @@ def mouse(button, state, x, y):
             print("Paused" if paused else "Playing")
         elif is_inside_button(x, y_adjusted, BUTTON_EXIT):
             exit_game()
-# Keyboard callback
+
 def keyboard(key, x, y):
     global paused
     if key == b'w':
@@ -466,8 +454,6 @@ def keyboard(key, x, y):
         reset_game()
 
 
-# Special keys callback
-# Special keys callback
 def special(key, x, y):
     if key == GLUT_KEY_UP:
         fish2['direction'] = (0, 1)
@@ -478,13 +464,12 @@ def special(key, x, y):
     elif key == GLUT_KEY_RIGHT:
         fish2['direction'] = (1, 0)
 
-# Initialize OpenGL
 def init():
     glClearColor(0, 0, 0, 1)
     glMatrixMode(GL_PROJECTION)
     gluOrtho2D(0, WINDOW_WIDTH, 0, WINDOW_HEIGHT)
 
-# Initialize and start the game
+
 glutInit()
 glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB)
 glutInitWindowSize(WINDOW_WIDTH, WINDOW_HEIGHT)
